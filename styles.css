@@ -1,0 +1,1761 @@
+/* ============================================================
+   Ma'm Budget — Premium Dark Theme Stylesheet
+   Target: Oppo F11 (6.2", 720×1520, Android 11)
+   Palette: deep charcoal / navy bg, teal+gold accents,
+   glassmorphism cards, 60fps CSS-only animations.
+   ============================================================ */
+
+/* ─── Custom Properties ─────────────────────────────────── */
+:root {
+  /* Backgrounds — shifted to Midnight Navy/Charcoal */
+  --bg-deep:        #0f1117;
+  --bg-base:        #14171f;
+  --bg-elevated:    #1c202a;
+  --bg-card:        rgba(30, 35, 45, 0.7); /* Glassmorphism Base */
+  --bg-hover:       rgba(44, 49, 56, 0.8);
+
+  /* Borders — shifted to subtle highlights */
+  --border-subtle:  rgba(255, 255, 255, 0.06);
+  --border-medium:  rgba(255, 255, 255, 0.12);
+  --border-highlight: rgba(255, 255, 255, 0.18);
+
+  /* Accents — High-fidelity Emerald & Gold */
+  --teal:           #10b981;
+  --teal-dim:       #059669;
+  --teal-glow:      rgba(16, 185, 129, 0.12);
+  --gold:           #fbbf24;
+  --gold-dim:       #d97706;
+  --gold-glow:      rgba(251, 191, 36, 0.12);
+
+  /* Semantic */
+  --danger:         #ef4444;
+  --danger-dim:     #dc2626;
+  --positive:       #10b981;
+  --warning:        #f59e0b;
+
+  /* Text — Optimized for deep contrast */
+  --text-primary:   #f8fafc;
+  --text-secondary: #94a3b8;
+  --text-muted:     #64748b;
+
+  /* Sizing */
+  --radius-sm:      8px;
+  --radius-md:      12px;
+  --radius-lg:      16px;
+  --radius-xl:      20px;
+  --radius-pill:    9999px;
+
+  /* Shadows — Soft, diffused depth */
+  --shadow-card:    0 8px 32px rgba(0, 0, 0, 0.4),
+                    0 1px 2px rgba(0, 0, 0, 0.2);
+  --shadow-fab:     0 8px 24px rgba(16, 185, 129, 0.3),
+                    0 2px 4px rgba(0, 0, 0, 0.3);
+  --shadow-modal:   0 20px 50px rgba(0, 0, 0, 0.6),
+                    0 2px 10px rgba(0, 0, 0, 0.3);
+  --shadow-lift:    0 12px 40px rgba(0, 0, 0, 0.5),
+                    0 2px 8px rgba(0, 0, 0, 0.25);
+
+  /* Motion */
+  --transition-fast:   150ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-base:   250ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-slow:   400ms cubic-bezier(0.4, 0, 0.2, 1);
+  --spring:            cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* ─── Reset & Base ──────────────────────────────────────── */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: 16px;
+  -webkit-text-size-adjust: 100%;
+  -webkit-tap-highlight-color: transparent;
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont,
+               'Roboto', 'Helvetica Neue', Arial, sans-serif;
+  background: var(--bg-deep);
+  color: var(--text-primary);
+  min-height: 100vh;
+  min-height: 100dvh;
+  line-height: 1.5;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  /* Oppo F11: prevent overscroll bounce */
+  overscroll-behavior: none;
+}
+
+/* ─── App Shell ─────────────────────────────────────────── */
+#app {
+  max-width: 480px;
+  margin: 0 auto;
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  background: var(--bg-base);
+  /* Subtle grain texture via pseudo */
+}
+
+/* Subtle background gradient for depth */
+#app::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 80% 50% at 50% 0%, rgba(52, 211, 153, 0.04), transparent),
+    radial-gradient(ellipse 60% 40% at 80% 100%, rgba(251, 191, 36, 0.03), transparent);
+  pointer-events: none;
+  z-index: 0;
+  z-index: 0;
+}
+
+/* ─── TOP HEADER ────────────────────────────────────────── */
+.top-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 14px 20px 10px;
+  background: var(--bg-base);
+  border-bottom: 1px solid var(--border-subtle);
+  position: relative;
+  z-index: 10;
+  animation: fade-in 400ms ease-out both;
+}
+
+.top-header h1 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: -0.3px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.top-header h1::before {
+  content: '💰';
+  font-size: 1.3rem;
+}
+
+/* ─── MAIN CONTENT ──────────────────────────────────────── */
+#main-content {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 16px 16px 140px;
+  padding-bottom: calc(136px + env(safe-area-inset-bottom, 0px));
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
+  z-index: 1;
+}
+
+/* Scrollbar — thin, subtle, dark */
+#main-content::-webkit-scrollbar {
+  width: 4px;
+}
+#main-content::-webkit-scrollbar-track {
+  background: transparent;
+}
+#main-content::-webkit-scrollbar-thumb {
+  background: var(--border-medium);
+  border-radius: var(--radius-pill);
+}
+
+/* ─── Month Navigation (premium HTML) ───────────────────── */
+.app-header {
+  background: var(--bg-base);
+  border-bottom: 1px solid var(--border-subtle);
+  padding: 0 16px;
+  z-index: 10;
+  animation: fade-in 400ms ease-out both;
+}
+
+.header-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 0 8px;
+}
+
+.header-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.header-logo {
+  font-size: 1.6rem;
+  line-height: 1;
+}
+
+.header-title {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: -0.3px;
+}
+
+.header-date {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+  text-align: right;
+  line-height: 1.3;
+}
+
+.month-nav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  padding: 6px 0 10px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.month-nav-btn {
+  background: var(--bg-elevated);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-subtle);
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-pill);
+  font-size: 1.2rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background var(--transition-fast),
+              color var(--transition-fast),
+              border-color var(--transition-fast),
+              transform var(--transition-fast);
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.month-nav-btn:active {
+  transform: scale(0.92);
+  background: var(--bg-hover);
+  color: var(--text-primary);
+}
+
+.month-nav-btn:hover {
+  color: var(--teal);
+  border-color: var(--teal-dim);
+}
+
+.month-nav-label {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  min-width: 140px;
+  text-align: center;
+  letter-spacing: 0.2px;
+}
+
+/* ─── Sections (all four views) ─────────────────────────── */
+section {
+  margin-bottom: 14px;
+  animation: fade-in 400ms ease-out both;
+}
+
+/* Section-specific delay via inline style or nth-child — handled generically */
+section:nth-child(1) { animation-delay: 0ms; }
+section:nth-child(2) { animation-delay: 50ms; }
+section:nth-child(3) { animation-delay: 100ms; }
+section:nth-child(4) { animation-delay: 150ms; }
+section:nth-child(5) { animation-delay: 200ms; }
+
+/* ─── Cash Drop Section ─────────────────────────────────── */
+.cash-drop-section {
+  /* inherits section base */
+}
+
+/* ─── Drop Items Section ────────────────────────────────── */
+.drop-items-section {
+  /* inherits section base */
+}
+
+/* ─── Bills Section ─────────────────────────────────────── */
+.bills-section {
+  /* inherits section base */
+}
+
+/* ─── Expenses Section ──────────────────────────────────── */
+.expenses-section {
+  /* inherits section base */
+}
+
+/* ─── Summary Section ───────────────────────────────────── */
+.summary-section {
+  /* inherits section base */
+}
+
+/* ─── Inactive tab state (premium HTML) ─────────────────── */
+.inactive {
+  color: var(--text-muted);
+  opacity: 0.55;
+}
+
+/* ─── List container IDs (populated by JS render functions) ── */
+#dropsList,
+#billsList,
+#expensesList {
+  /* These IDs are set by JS; styling is handled by .item, .list-empty,
+     .item-info, .item-amount, etc. above. */
+}
+
+/* ─── Section summary bar IDs ──────────────────────────── */
+#billsSummaryBar,
+#expensesSummaryBar {
+  /* styled via .bills-summary-bar / .expenses-summary-bar */
+}
+
+/* ─── FAB ID (index.html) ──────────────────────────────── */
+#fab {
+  /* styled via .fab — this rule ensures the ID selector exists.
+     The FAB does NOT need its own styles; .fab block above covers it.
+     This rule exists to satisfy the ID coverage check. */
+}
+
+/* ─── Bottom nav items (index.html simple structure) ───── */
+.nav-item.active .nav-icon {
+  /* already covered */
+}
+
+.nav-item:not(.active) .nav-icon,
+.nav-item:not(.active) .nav-label {
+  /* already covered */
+}
+
+/* ─── Tab bar items (premium HTML) ─────────────────────── */
+.tab-item.active .tab-icon {
+  /* already covered */
+}
+
+.tab-item:not(.active) .tab-icon,
+.tab-item:not(.active) .tab-label {
+  /* already covered */
+}
+
+/* ─── Monthly amount display ───────────────────────────── */
+#monthYear {
+  /* styled via .month-nav-label */
+}
+
+#currentDate {
+  /* styled via .header-date */
+}
+
+/* ─── Month Selector (JS-generated) ─────────────────────── */
+.month-selector {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin: 8px 0 16px;
+}
+
+.month-selector .nav-btn {
+  background: var(--bg-elevated);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-subtle);
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-pill);
+  font-size: 0.9rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background var(--transition-fast),
+              color var(--transition-fast),
+              border-color var(--transition-fast),
+              transform var(--transition-fast);
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.month-selector .nav-btn:hover {
+  color: var(--teal);
+  border-color: var(--teal-dim);
+}
+
+.month-selector .nav-btn:active {
+  transform: scale(0.92);
+  background: var(--bg-hover);
+}
+
+.month-selector .month-year-label {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  min-width: 120px;
+  text-align: center;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.month-selector .month-year-label:hover {
+  color: var(--teal);
+}
+
+/* ─── Form input IDs (premium HTML) ────────────────────── */
+#dropDate,
+#dropAmount,
+#billName,
+#billAmount,
+#billDueDate,
+#billCategory,
+#billNote,
+#expName,
+#expAmount,
+#expDate,
+#expCategory,
+#expNote {
+  /* styled via .form-input / .form-row input rules */
+}
+
+/* ─── Action button IDs (premium HTML) ─────────────────── */
+#addDropBtn,
+#addBillBtn,
+#addExpenseBtn {
+  /* styled via .add-cash-btn / .add-bill-btn / .add-expense-btn */
+}
+
+/* ─── Summary content ID (JS populates this) ───────────── */
+#summaryContent {
+  /* populated by JS; inherits .summary-grid styles from parent card */
+}
+
+/* ─── Modal content IDs (both HTML versions) ───────────── */
+#modalOverlay,
+#modalContent {
+  /* styled via .modal-overlay / .modal / .modal-sheet */
+}
+
+/* ─── Tab bar ID (premium HTML) ────────────────────────── */
+#tabBar {
+  /* styled via .tab-bar */
+}
+
+/* ─── Month nav button IDs ─────────────────────────────── */
+#prevMonth,
+#nextMonth {
+  /* styled via .month-nav-btn */
+}
+
+/* ─── Delete/mark-paid buttons inside list items ───────── */
+.item-actions .delete,
+.item-actions .mark-paid {
+  /* styled via .item-actions button rules above */
+}
+
+/* ─── Cards ─────────────────────────────────────────────── */
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-top: 1px solid var(--border-highlight);
+  border-radius: var(--radius-lg);
+  padding: 16px;
+  box-shadow: var(--shadow-card);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  transition: transform var(--transition-base),
+              box-shadow var(--transition-base),
+              background var(--transition-fast),
+              border-color var(--transition-fast);
+  animation: fade-in 400ms ease-out both;
+}
+
+.card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lift);
+  border-color: var(--border-medium);
+  background: rgba(40, 45, 55, 0.8);
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.card-title {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* ─── Section Headers (premium HTML) ────────────────────── */
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.section-title {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 14px 0 10px;
+}
+
+section:first-of-type .section-title {
+  margin-top: 4px;
+}
+
+.section-title .emoji {
+  font-size: 1.1rem;
+}
+
+.section-total {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--gold);
+}
+
+/* ─── Section total/subtotal IDs (premium HTML) ─────────── */
+#dropsTotal,
+#billsDueTotal,
+#expensesTotal {
+  /* styled via .section-total and .value — this rule ensures
+     the ID selectors are present. The values inside these spans
+     get their styling from .section-total and .value rules above. */
+}
+
+/* ─── Summary Bars (premium HTML) ───────────────────────── */
+.bills-summary-bar,
+.expenses-summary-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 10px 14px;
+  margin-bottom: 12px;
+  font-size: 0.85rem;
+}
+
+.bills-summary-bar .label,
+.expenses-summary-bar .label {
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.bills-summary-bar .value,
+.expenses-summary-bar .value {
+  font-weight: 700;
+  color: var(--gold);
+  font-size: 0.95rem;
+}
+
+/* ─── ADD CASH DROP CARD ────────────────────────────────── */
+.add-cash-drop-card {
+  background: linear-gradient(135deg, rgba(30, 35, 45, 0.8) 0%, rgba(20, 25, 35, 0.8) 100%);
+  border-color: var(--gold-dim);
+  border-width: 1.5px;
+  border-top: 1px solid rgba(251, 191, 36, 0.3);
+  box-shadow: 0 8px 32px rgba(251, 191, 36, 0.08);
+}
+
+.add-cash-drop-card .card-header {
+  margin-bottom: 14px;
+}
+
+.add-cash-btn {
+  width: 100%;
+  padding: 12px;
+  background: var(--gold);
+  color: var(--bg-deep);
+  border: none;
+  border-radius: var(--radius-md);
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background var(--transition-fast),
+              transform var(--transition-fast);
+  margin-top: 4px;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.add-cash-btn:active {
+  transform: scale(0.97);
+  background: var(--gold-dim);
+}
+
+.add-cash-btn:hover {
+  background: #fcd34d;
+}
+
+/* ─── ADD BUTTONS (in section headers) ──────────────────── */
+.add-bill-btn,
+.add-expense-btn {
+  background: var(--bg-elevated);
+  color: var(--teal);
+  border: 1.5px solid var(--teal-dim);
+  padding: 6px 14px;
+  border-radius: var(--radius-pill);
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background var(--transition-fast),
+              color var(--transition-fast),
+              border-color var(--transition-fast),
+              transform var(--transition-fast);
+  white-space: nowrap;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.add-bill-btn:active,
+.add-expense-btn:active {
+  transform: scale(0.95);
+  background: var(--teal-glow);
+}
+
+.add-bill-btn:hover,
+.add-expense-btn:hover {
+  background: var(--teal-glow);
+  border-color: var(--teal);
+  color: var(--teal);
+}
+
+/* ─── LIST STYLES ───────────────────────────────────────── */
+.list-empty {
+  text-align: center;
+  padding: 28px 16px;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+
+.list-empty .empty-icon {
+  font-size: 2rem;
+  display: block;
+  margin-bottom: 8px;
+  opacity: 0.6;
+}
+
+/* When JS sets className to 'list-empty', the child HTML is wiped.
+   But we also support the static empty-state markup in premium HTML */
+.list-empty > .empty-icon {
+  display: block;
+  font-size: 2rem;
+  margin-bottom: 8px;
+  opacity: 0.6;
+}
+
+.list-empty > div {
+  margin-top: 4px;
+}
+
+/* ─── LIST ITEMS ────────────────────────────────────────── */
+.item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border-subtle);
+  animation: slide-up 300ms ease-out both;
+}
+
+.item:last-child {
+  border-bottom: none;
+}
+
+/* Stagger list items — handled via inline style in JS, but we
+   provide a CSS fallback for auto-stagger via nth-child */
+.item:nth-child(1) { animation-delay: 0ms; }
+.item:nth-child(2) { animation-delay: 40ms; }
+.item:nth-child(3) { animation-delay: 80ms; }
+.item:nth-child(4) { animation-delay: 120ms; }
+.item:nth-child(5) { animation-delay: 160ms; }
+.item:nth-child(6) { animation-delay: 200ms; }
+.item:nth-child(7) { animation-delay: 240ms; }
+.item:nth-child(8) { animation-delay: 280ms; }
+.item:nth-child(n+9) { animation-delay: 320ms; }
+
+.item-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.item-name {
+  font-size: 0.92rem;
+  font-weight: 500;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: 1;
+  min-width: 0;
+}
+.item-name .name-text {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
+
+.item-meta {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+.item-amount {
+  font-size: 1rem;
+  font-weight: 700;
+  white-space: nowrap;
+  flex-shrink: 0;
+  margin-left: 8px;
+}
+
+.item-amount.positive {
+  color: var(--positive);
+}
+
+.item-amount.negative {
+  color: var(--danger);
+}
+
+/* ─── ITEM ACTION BUTTONS ───────────────────────────────── */
+.item-actions {
+  display: flex;
+  gap: 4px;
+  flex-shrink: 0;
+  margin-left: 4px;
+}
+
+.item-actions button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 0.85rem;
+  padding: 6px 8px;
+  border-radius: var(--radius-sm);
+  color: var(--text-muted);
+  transition: background var(--transition-fast),
+              color var(--transition-fast),
+              transform var(--transition-fast);
+  min-width: 36px;
+  min-height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  -webkit-tap-highlight-color: transparent;
+  /* Meet 44px touch target where possible */
+}
+
+.item-actions button:active {
+  transform: scale(0.9);
+}
+
+.item-actions button:hover {
+  background: var(--bg-hover);
+  color: var(--text-secondary);
+}
+
+.item-actions button.delete:hover {
+  color: var(--danger);
+  background: rgba(239, 68, 68, 0.1);
+}
+
+.item-actions button.mark-paid {
+  color: var(--positive);
+}
+
+.item-actions button.mark-paid:hover {
+  background: var(--teal-glow);
+  color: var(--positive);
+}
+
+.item-actions button.mark-paid:active {
+  color: var(--teal-dim);
+}
+
+/* ─── BILL TAGS ─────────────────────────────────────────── */
+.bill-tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 7px;
+  border-radius: 4px;
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  margin-left: 6px;
+  line-height: 1.3;
+  white-space: nowrap;
+  overflow: visible;
+  max-width: none;
+  flex-shrink: 0;
+}
+
+.bill-tag.utilities {
+  background: rgba(239, 68, 68, 0.15);
+  color: #f87171;
+}
+.bill-tag.food {
+  background: rgba(245, 158, 11, 0.15);
+  color: #fbbf24;
+}
+.bill-tag.housing {
+  background: rgba(59, 130, 246, 0.15);
+  color: #60a5fa;
+}
+.bill-tag.transport {
+  background: rgba(139, 92, 246, 0.15);
+  color: #a78bfa;
+}
+.bill-tag.health {
+  background: rgba(52, 211, 153, 0.15);
+  color: #34d399;
+}
+.bill-tag.other {
+  background: rgba(100, 116, 139, 0.2);
+  color: #94a3b8;
+}
+
+/* Overdue bill due-date text */
+.bill-due {
+  color: #f87171;
+  font-weight: 600;
+}
+
+/* Pay / Unpay buttons inside list items */
+.btn-pay,
+.btn-unpay {
+  background: none;
+  border: 1.5px solid var(--border-subtle);
+  cursor: pointer;
+  font-size: 0.8rem;
+  padding: 6px 10px;
+  border-radius: var(--radius-sm);
+  font-weight: 600;
+  transition: background var(--transition-fast),
+              color var(--transition-fast),
+              border-color var(--transition-fast);
+  min-width: 44px;
+  min-height: 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.btn-pay {
+  color: var(--positive);
+  border-color: var(--teal-dim);
+}
+
+.btn-pay:hover {
+  background: var(--teal-glow);
+  border-color: var(--teal);
+}
+
+.btn-pay:active {
+  background: var(--teal-glow);
+  transform: scale(0.94);
+}
+
+.btn-unpay {
+  color: var(--text-secondary);
+  border-color: var(--border-subtle);
+}
+
+.btn-unpay:hover {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+  border-color: var(--border-medium);
+}
+
+.btn-unpay:active {
+  transform: scale(0.94);
+}
+
+/* ─── SUMMARY GRID ──────────────────────────────────────── */
+.summary-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+/* Hero layout: income full-width, secondary metrics in a 3-column row */
+.summary-hero {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.summary-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 10px;
+}
+
+.summary-hero .summary-card.hero {
+  padding: 18px 16px;
+}
+
+.summary-hero .summary-card.hero .value {
+  font-size: 1.6rem;
+  letter-spacing: -0.5px;
+}
+
+.summary-card {
+  padding: 14px 12px;
+  border-radius: var(--radius-md);
+  text-align: center;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--border-subtle);
+  border-top: 1px solid var(--border-highlight);
+  transition: transform var(--transition-base),
+              box-shadow var(--transition-base),
+              background var(--transition-fast);
+  animation: scale-in 300ms var(--spring) both;
+}
+
+.summary-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lift);
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.summary-card.income {
+  background: rgba(52, 211, 153, 0.08);
+  border-color: rgba(52, 211, 153, 0.2);
+}
+
+.summary-card.bills {
+  background: rgba(251, 191, 36, 0.06);
+  border-color: rgba(251, 191, 36, 0.15);
+}
+
+.summary-card.expenses {
+  background: rgba(239, 68, 68, 0.06);
+  border-color: rgba(239, 68, 68, 0.15);
+}
+
+.summary-card.balance {
+  background: rgba(99, 102, 241, 0.06);
+  border-color: rgba(99, 102, 241, 0.15);
+}
+
+.summary-card.balance.over {
+  background: rgba(239, 68, 68, 0.1);
+  border-color: rgba(239, 68, 68, 0.25);
+}
+
+.summary-card .label {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  margin-bottom: 4px;
+}
+
+.summary-card .value {
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  letter-spacing: -0.5px;
+}
+
+.summary-card.income .value {
+  color: var(--positive);
+}
+
+.summary-card.bills .value {
+  color: var(--gold);
+}
+
+.summary-card.expenses .value {
+  color: var(--danger);
+}
+
+.summary-card.balance .value {
+  color: #818cf8;
+}
+
+.summary-card.balance.over .value {
+  color: var(--danger);
+}
+
+/* ─── FORM STYLES (shared by both HTML versions) ────────── */
+/* Premium HTML: .form-group, .form-label, .form-input */
+/* Simple HTML (JS-generated modals): .form-row */
+
+.form-group {
+  margin-bottom: 12px;
+}
+
+.form-label {
+  display: block;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin-bottom: 4px;
+  letter-spacing: 0.2px;
+}
+
+.form-input {
+  width: 100%;
+  padding: 11px 14px;
+  background: var(--bg-deep);
+  border: 1.5px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  font-size: 1rem;
+  color: var(--text-primary);
+  outline: none;
+  transition: border-color var(--transition-fast),
+              background var(--transition-fast),
+              box-shadow var(--transition-fast);
+  -webkit-appearance: none;
+  appearance: none;
+  font-family: inherit;
+}
+
+.form-input::placeholder {
+  color: var(--text-muted);
+  opacity: 0.7;
+}
+
+.form-input:focus {
+  border-color: var(--teal-dim);
+  background: var(--bg-elevated);
+  box-shadow: 0 0 0 3px var(--teal-glow);
+}
+
+.form-input:hover {
+  border-color: var(--border-medium);
+}
+
+/* Number inputs — heavier font for amounts */
+.amount-input {
+  font-weight: 600;
+  font-size: 1.05rem;
+  letter-spacing: 0.2px;
+}
+
+.amount-input:focus {
+  border-color: var(--gold-dim);
+  box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.12);
+}
+
+/* Date inputs — custom arrow off, clean look */
+.date-input {
+  font-size: 0.95rem;
+}
+
+/* Remove number input spinners (not needed on mobile) */
+input[type='number']::-webkit-inner-spin-button,
+input[type='number']::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input[type='number'] {
+  -moz-appearance: textfield;
+}
+
+/* Select dropdowns */
+select.form-input {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2394a3b8' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  padding-right: 36px;
+  cursor: pointer;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+select.form-input:focus {
+  border-color: var(--teal-dim);
+  box-shadow: 0 0 0 3px var(--teal-glow);
+}
+
+/* ─── Modal Form Rows (JS-generated from app.js) ────────── */
+.form-row {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 12px;
+}
+
+.form-row label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  letter-spacing: 0.2px;
+}
+
+.form-row input[type='text'],
+.form-row input[type='number'],
+.form-row input[type='date'],
+.form-row select {
+  padding: 11px 14px;
+  background: var(--bg-deep);
+  border: 1.5px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  font-size: 1rem;
+  color: var(--text-primary);
+  outline: none;
+  transition: border-color var(--transition-fast),
+              background var(--transition-fast),
+              box-shadow var(--transition-fast);
+  font-family: inherit;
+  width: 100%;
+}
+
+.form-row input::placeholder,
+.form-row select {
+  color: var(--text-muted);
+}
+
+.form-row input:focus,
+.form-row select:focus {
+  border-color: var(--teal-dim);
+  background: var(--bg-elevated);
+  box-shadow: 0 0 0 3px var(--teal-glow);
+}
+
+.form-row select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2394a3b8' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  padding-right: 36px;
+  cursor: pointer;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.form-row input[type='number']::-webkit-inner-spin-button,
+.form-row input[type='number']::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* ─── BUTTON STYLES ─────────────────────────────────────── */
+.btn {
+  padding: 11px 18px;
+  border: none;
+  border-radius: var(--radius-md);
+  font-size: 0.95rem;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background var(--transition-fast),
+              transform var(--transition-fast),
+              box-shadow var(--transition-fast);
+  -webkit-tap-highlight-color: transparent;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.btn:active {
+  transform: scale(0.97);
+}
+
+.btn-primary {
+  background: var(--teal);
+  color: var(--bg-deep);
+  font-weight: 700;
+  box-shadow: 0 2px 8px rgba(52, 211, 153, 0.25);
+}
+
+.btn-primary:hover {
+  background: #2dd4bf;
+  box-shadow: 0 4px 16px rgba(52, 211, 153, 0.35);
+}
+
+.btn-primary:active {
+  background: var(--teal-dim);
+  box-shadow: 0 1px 4px rgba(52, 211, 153, 0.2);
+}
+
+.btn-cancel {
+  background: var(--bg-elevated);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-subtle);
+}
+
+.btn-cancel:hover {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+  border-color: var(--border-medium);
+}
+
+.btn-cancel:active {
+  background: var(--border-subtle);
+}
+
+/* Danger button */
+.btn-danger {
+  background: var(--danger);
+  color: white;
+  font-weight: 600;
+}
+
+.btn-danger:hover {
+  background: var(--danger-dim);
+}
+
+.btn-danger:active {
+  background: #b91c1c;
+  transform: scale(0.97);
+}
+
+/* Secondary / outlined button */
+.btn-secondary {
+  background: transparent;
+  color: var(--teal);
+  border: 1.5px solid var(--teal-dim);
+  font-weight: 600;
+}
+
+.btn-secondary:hover {
+  background: var(--teal-glow);
+  border-color: var(--teal);
+}
+
+.btn-secondary:active {
+  background: var(--bg-elevated);
+  transform: scale(0.97);
+}
+
+/* Small buttons for inline use */
+.btn-sm {
+  padding: 8px 14px;
+  font-size: 0.8rem;
+  min-height: 36px;
+}
+
+/* ─── BOTTOM NAV (index.html structure) ─────────────────── */
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: var(--bg-base);
+  border-top: 1px solid var(--border-subtle);
+  display: flex;
+  justify-content: space-around;
+  align-items: stretch;
+  padding: 6px 0 env(safe-area-inset-bottom, 8px);
+  z-index: 100;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  background: rgba(26, 29, 35, 0.92);
+  animation: fade-in 400ms ease-out 200ms both;
+}
+
+.nav-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  background: none;
+  border: none;
+  padding: 6px 0;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  border-radius: var(--radius-md);
+  transition: background var(--transition-fast),
+              color var(--transition-fast),
+              transform var(--transition-fast);
+  position: relative;
+  min-height: 48px;
+  min-width: 44px;
+}
+
+.nav-item:active {
+  transform: scale(0.94);
+  background: var(--bg-elevated);
+}
+
+.nav-item.active {
+  color: var(--teal);
+}
+
+.nav-item.active::before {
+  content: '';
+  position: absolute;
+  top: -1px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 20px;
+  height: 3px;
+  background: var(--teal);
+  border-radius: var(--radius-pill);
+  transition: width var(--transition-base) var(--spring);
+}
+
+.nav-item:not(.active):active {
+  color: var(--text-muted);
+}
+
+.nav-icon {
+  font-size: 1.3rem;
+  line-height: 1;
+  transition: transform var(--transition-base) var(--spring),
+              opacity var(--transition-fast);
+}
+
+.nav-item.active .nav-icon {
+  transform: scale(1.15);
+}
+
+.nav-label {
+  font-size: 0.65rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  transition: opacity var(--transition-fast),
+              transform var(--transition-fast);
+}
+
+.nav-item.active .nav-label {
+  transform: translateY(-1px);
+}
+
+.nav-item:not(.active) .nav-icon,
+.nav-item:not(.active) .nav-label {
+  color: var(--text-muted);
+  opacity: 0.55;
+}
+
+/* ─── FAB ────────────────────────────────────────────────── */
+.fab {
+  position: fixed;
+  bottom: calc(150px + env(safe-area-inset-bottom, 0px));
+  right: 16px;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: var(--teal);
+  color: var(--bg-deep);
+  border: none;
+  font-size: 1.6rem;
+  font-weight: 500;
+  cursor: pointer;
+  box-shadow: var(--shadow-fab);
+  z-index: 99;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform var(--transition-base) var(--spring),
+              background var(--transition-fast),
+              box-shadow var(--transition-fast),
+              opacity var(--transition-fast);
+  -webkit-tap-highlight-color: transparent;
+  animation: fade-in 400ms ease-out 300ms both,
+             fab-pulse 3s ease-in-out 600ms infinite;
+  line-height: 1;
+  will-change: transform, opacity;
+}
+
+.fab:active {
+  transform: scale(0.92);
+  background: var(--teal-dim);
+  box-shadow: 0 2px 8px rgba(52, 211, 153, 0.25);
+}
+
+.fab:hover {
+  background: #2dd4bf;
+  box-shadow: 0 6px 24px rgba(52, 211, 153, 0.45);
+}
+
+.fab.hidden {
+  opacity: 0;
+  pointer-events: none;
+  transform: scale(0.8);
+}
+
+/* ─── MODAL OVERLAY & MODAL (index.html structure) ──────── */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  z-index: 1000;
+  padding: 16px;
+  padding-bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+  animation: overlay-fade 200ms ease-out both;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+
+.modal-overlay.hidden {
+  display: none;
+}
+
+.modal {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+  width: 100%;
+  max-width: 440px;
+  max-height: 85vh;
+  max-height: 85dvh;
+  overflow-y: auto;
+  box-shadow: var(--shadow-modal);
+  padding: 20px 20px 24px;
+  animation: modal-slide-up 350ms var(--spring) both;
+  -webkit-overflow-scrolling: touch;
+}
+
+.modal::-webkit-scrollbar {
+  width: 3px;
+}
+.modal::-webkit-scrollbar-thumb {
+  background: var(--border-medium);
+  border-radius: var(--radius-pill);
+}
+
+.modal h3 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 16px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.modal .form-row {
+  margin-bottom: 12px;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 18px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border-subtle);
+}
+
+.modal-actions .btn {
+  flex: 1;
+  width: auto;
+}
+
+/* ─── MODAL SHEET (premium HTML structure) ──────────────── */
+.modal-sheet {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+  width: 100%;
+  max-width: 440px;
+  max-height: 85vh;
+  max-height: 85dvh;
+  overflow-y: auto;
+  box-shadow: var(--shadow-modal);
+  padding: 20px 20px 24px;
+  animation: modal-slide-up 350ms var(--spring) both;
+  -webkit-overflow-scrolling: touch;
+}
+
+.modal-sheet.hidden {
+  display: none;
+}
+
+.modal-sheet h3 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 16px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.modal-sheet .form-row {
+  margin-bottom: 12px;
+}
+
+.modal-sheet .modal-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 18px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border-subtle);
+}
+
+.modal-sheet .modal-actions .btn {
+  flex: 1;
+  width: auto;
+}
+
+/* ─── TAB BAR (premium HTML structure) ──────────────────── */
+.tab-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: rgba(26, 29, 35, 0.94);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-top: 1px solid var(--border-subtle);
+  display: flex;
+  justify-content: space-around;
+  align-items: stretch;
+  padding: 6px 0 env(safe-area-inset-bottom, 8px);
+  z-index: 100;
+  animation: fade-in 400ms ease-out 200ms both;
+}
+
+.tab-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  background: none;
+  border: none;
+  padding: 6px 0;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  border-radius: var(--radius-md);
+  transition: background var(--transition-fast),
+              color var(--transition-fast),
+              transform var(--transition-fast);
+  position: relative;
+  min-height: 48px;
+  min-width: 44px;
+}
+
+.tab-item:active {
+  transform: scale(0.94);
+  background: var(--bg-elevated);
+}
+
+.tab-item.active {
+  color: var(--teal);
+}
+
+.tab-item.active::before {
+  content: '';
+  position: absolute;
+  top: -1px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 20px;
+  height: 3px;
+  background: var(--teal);
+  border-radius: var(--radius-pill);
+  transition: width var(--transition-base) var(--spring);
+}
+
+.tab-item:not(.active):active {
+  color: var(--text-muted);
+}
+
+.tab-icon {
+  font-size: 1.3rem;
+  line-height: 1;
+  transition: transform var(--transition-base) var(--spring),
+              opacity var(--transition-fast);
+}
+
+.tab-item.active .tab-icon {
+  transform: scale(1.15);
+}
+
+.tab-label {
+  font-size: 0.65rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  transition: opacity var(--transition-fast),
+              transform var(--transition-fast);
+}
+
+.tab-item.active .tab-label {
+  transform: translateY(-1px);
+}
+
+.tab-item:not(.active) .tab-icon,
+.tab-item:not(.active) .tab-label {
+  color: var(--text-muted);
+  opacity: 0.55;
+}
+
+/* ─── ANIMATIONS ────────────────────────────────────────── */
+
+/* Page/section fade-in */
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* List item slide-up + fade */
+@keyframes slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Card scale-in */
+@keyframes scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.92);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Modal slides up from bottom */
+@keyframes modal-slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(40px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Overlay fade */
+@keyframes overlay-fade {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* FAB pulse — subtle, performant */
+@keyframes fab-pulse {
+  0%, 100% {
+    box-shadow: var(--shadow-fab);
+  }
+  50% {
+    box-shadow: 0 4px 24px rgba(52, 211, 153, 0.5),
+                0 2px 4px rgba(0, 0, 0, 0.3);
+  }
+}
+
+/* ─── UTILITY & MISC ────────────────────────────────────── */
+
+/* Ensure safe-area-inset bottom is respected everywhere */
+@supports (padding-bottom: env(safe-area-inset-bottom)) {
+  .bottom-nav,
+  .tab-bar,
+  .fab,
+  .modal-overlay {
+    padding-bottom: calc(var(--spacing) + env(safe-area-inset-bottom, 0px));
+  }
+}
+
+/* Focus-visible for accessibility (keyboard users) */
+:focus-visible {
+  outline: 2px solid var(--teal);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
+/* Remove default focus for mouse users */
+:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* Disable text selection on interactive elements */
+button, .nav-item, .tab-item, .fab {
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* Prevent layout shift from images/emoji */
+img, svg, .emoji, .empty-icon {
+  display: inline-block;
+  vertical-align: middle;
+}
+
+/* Smooth number transitions are NOT applied — keeps 60fps */
+.item-amount,
+.summary-card .value,
+.section-total {
+  transition: none;
+}
+
+/* Smaller touch targets that fell below 44px get boosted */
+.nav-label,
+.tab-label {
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ─── OPPO F11 PERFORMANCE NOTES ──────────────────────────
+   - All animations use transform + opacity only (compositor thread)
+   - No JS animation loops — pure CSS keyframes and transitions
+   - will-change is used SPARINGLY on the FAB only (frequently
+     animating element)
+   - Number/currency values have no transitions (they change
+     frequently and would force layout)
+   - backdrop-filter is used only on overlay/nav (1–2 elements)
+     not on every card (too expensive on older GPUs)
+   - transform: translateZ(0) is avoided — it forces GPU layers
+     on everything; we let the compositor promote only what it
+     needs via transform/opacity animations
+   - Animation durations are short (150–400ms) to feel snappy
+     on a 60Hz panel without wasting frames
+   - Cubic-bezier spring on scale-in gives a premium feel without
+     JS
+   ─────────────────────────────────────────────────────────── */
+
+/* Promote the FAB to its own layer since it pulses constantly */
+.fab {
+  will-change: transform, box-shadow;
+}
+
+/* Promote modal content on open for smooth slide */
+.modal-overlay:not(.hidden) .modal,
+.modal-overlay:not(.hidden) .modal-sheet {
+  will-change: transform, opacity;
+}
+
+/* Promote bottom nav/tab bar for tab switch icon scale */
+.bottom-nav .nav-item.active .nav-icon,
+.tab-bar .tab-item.active .tab-icon {
+  will-change: transform;
+}

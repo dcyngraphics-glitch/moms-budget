@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#10b981">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>Ma'm Budget</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="stylesheet" href="styles-premium.css">
+  <link rel="icon" href="icon-192.png">
+</head>
+<body>
+  <div id="app">
+    <!-- Header -->
+    <header class="app-header">
+      <div class="header-top">
+        <div class="header-brand">
+          <div class="header-logo">💰</div>
+          <h1 class="header-title">Ma'm Budget</h1>
+        </div>
+        <div class="header-date" id="currentDate"></div>
+      </div>
+
+      <!-- Month Navigation -->
+      <div class="month-nav">
+        <button id="prevMonth" class="month-nav-btn" aria-label="Previous month">‹</button>
+        <span class="month-nav-label" id="monthYear">September 2026</span>
+        <button id="nextMonth" class="month-nav-btn" aria-label="Next month">›</button>
+      </div>
+    </header>
+
+    <!-- Cash Drop Section -->
+    <section class="cash-drop-section">
+      <div class="card add-cash-drop-card">
+        <div class="card-header">
+          <span class="card-title">💰 Add Cash Drop (Payday)</span>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="dropDate">Date</label>
+          <input type="date" id="dropDate" class="form-input date-input">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="dropAmount">Amount (₱)</label>
+          <input type="number" id="dropAmount" class="form-input amount-input" placeholder="0.00" min="0" step="0.01" inputmode="decimal">
+        </div>
+        <button id="addDropBtn" class="add-cash-btn">Add Cash Drop</button>
+      </div>
+    </section>
+
+    <!-- Cash Drops List -->
+    <section class="drop-items-section">
+      <div class="card">
+        <div class="section-header">
+          <span class="section-title"><span class="emoji">💵</span> Cash Drops</span>
+          <span class="section-total" id="dropsTotal">₱0.00</span>
+        </div>
+        <div id="dropsList" class="list-empty">
+          <span class="empty-icon">🪴</span>
+          <div>No cash drops yet.<br>Add your first payday above.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Bills Section -->
+    <section class="bills-section">
+      <div class="bills-summary-bar" id="billsSummaryBar" style="display: none;">
+        <span class="label">Bills Due This Month</span>
+        <span class="value" id="billsDueTotal">₱0.00</span>
+      </div>
+      <div class="card">
+        <div class="section-header">
+          <span class="section-title"><span class="emoji">📋</span> Bills</span>
+          <button id="addBillBtn" class="add-bill-btn">+ Add Bill</button>
+        </div>
+        <div id="billsList" class="list-empty">
+          <span class="empty-icon">📝</span>
+          <div>No bills yet.<br>Add your recurring bills.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Expenses Section -->
+    <section class="expenses-section">
+      <div class="expenses-summary-bar" id="expensesSummaryBar" style="display: none;">
+        <span class="label">Expenses This Month</span>
+        <span class="value" id="expensesTotal">₱0.00</span>
+      </div>
+      <div class="card">
+        <div class="section-header">
+          <span class="section-title"><span class="emoji">🛒</span> Expenses</span>
+          <button id="addExpenseBtn" class="add-expense-btn">+ Add Expense</button>
+        </div>
+        <div id="expensesList" class="list-empty">
+          <span class="empty-icon">🛍️</span>
+          <div>No expenses yet.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Summary Section -->
+    <section class="summary-section">
+      <div class="card">
+        <div class="section-header">
+          <span class="section-title"><span class="emoji">📊</span> Month Summary</span>
+        </div>
+        <div class="summary-grid" id="summaryContent"></div>
+      </div>
+    </section>
+
+    <!-- Bottom Tab Bar -->
+    <nav class="tab-bar" id="tabBar">
+      <button class="tab-item active" data-tab="summary" aria-label="Summary">
+        <span class="tab-icon">📊</span>
+        <span class="tab-label">Summary</span>
+      </button>
+      <button class="tab-item inactive" data-tab="income" aria-label="Income">
+        <span class="tab-icon">💰</span>
+        <span class="tab-label">Income</span>
+      </button>
+      <button class="tab-item inactive" data-tab="bills" aria-label="Bills">
+        <span class="tab-icon">📋</span>
+        <span class="tab-label">Bills</span>
+      </button>
+      <button class="tab-item inactive" data-tab="expenses" aria-label="Expenses">
+        <span class="tab-icon">🛒</span>
+        <span class="tab-label">Expenses</span>
+      </button>
+    </nav>
+
+    <!-- Modal Container -->
+    <div id="modalOverlay" class="modal-overlay hidden">
+      <div id="modalContent" class="modal-sheet"></div>
+    </div>
+  </div>
+
+  <script src="app-premium.js"></script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('sw.js').catch(() => {});
+    }
+  </script>
+</body>
+</html>

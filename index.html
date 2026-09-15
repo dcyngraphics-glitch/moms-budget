@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#1a1d23">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>Mom</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="motion.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💰</text></svg>">
+</head>
+<body>
+  <div id="app">
+    <!-- Top header -->
+    <header class="top-header">
+      <h1>BAEAYRAN NA NAMAN</h1>
+    </header>
+
+    <!-- Main content area -->
+    <main id="main-content">
+      <!-- Will be populated by JS -->
+    </main>
+
+    <!-- Bottom nav -->
+    <nav class="bottom-nav">
+      <button class="nav-item active" data-screen="dashboard">
+        <span class="nav-icon">🏠</span>
+        <span class="nav-label">Home</span>
+      </button>
+      <button class="nav-item" data-screen="income">
+        <span class="nav-icon">💵</span>
+        <span class="nav-label">Income</span>
+      </button>
+      <button class="nav-item" data-screen="bills">
+        <span class="nav-icon">📋</span>
+        <span class="nav-label">Bills</span>
+      </button>
+      <button class="nav-item" data-screen="expenses">
+        <span class="nav-icon">🛒</span>
+        <span class="nav-label">Expenses</span>
+      </button>
+      <button class="nav-item" data-screen="notifications">
+        <span class="nav-icon">🔔</span>
+        <span class="nav-label">Alerts</span>
+      </button>
+      <button class="nav-item" data-screen="statistics">
+        <span class="nav-icon">📊</span>
+        <span class="nav-label">Stats</span>
+      </button>
+    </nav>
+
+    <!-- FAB for quick add -->
+    <button class="fab" id="fab" aria-label="Quick actions">+</button>
+
+    <!-- Modal overlay -->
+    <div class="modal-overlay hidden" id="modalOverlay">
+      <div class="modal" id="modalContent"></div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+  <script>
+    // Register service worker for offline
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('sw.js').then(() => {
+          console.log('SW registered');
+        }).catch(err => {
+          console.log('SW failed:', err);
+        });
+      });
+    }
+  </script>
+</body>
+</html>

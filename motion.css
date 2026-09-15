@@ -1,0 +1,54 @@
+/* ─── PREMIUM MOTION EXTENSIONS ────────────────────────── */
+
+/* Cascade entry for list items — stagger delays only.
+   The base .item animation and opacity live in styles.css;
+   we only refine the timing here to avoid the opacity:0 trap
+   that hides items if the animation is delayed or disabled. */
+.item {
+  animation: slide-up 400ms cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+/* Number ticker effect - defined as a class to be toggled by JS */
+.number-tick {
+  display: inline-block;
+  transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* ─── REDUCED MOTION ─────────────────────────────────────── */
+/* Users who opt out of motion: kill animations gracefully,
+   preserve state changes with instant opacity/fade only. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  /* FAB pulse is pure decoration — remove entirely */
+  .fab {
+    animation: none !important;
+    will-change: auto;
+  }
+
+  /* List items appear instantly; no staggered slide-up */
+  .item {
+    opacity: 1 !important;
+    animation: none !important;
+  }
+
+  /* Modal and overlay fade instantly */
+  .modal-overlay,
+  .modal,
+  .modal-sheet {
+    animation: none !important;
+    will-change: auto;
+  }
+
+  /* Summary cards don't scale-in */
+  .summary-card {
+    animation: none !important;
+  }
+}
