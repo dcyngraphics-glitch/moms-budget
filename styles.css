@@ -824,7 +824,7 @@ section:first-of-type .section-title {
   display: inline-flex;
   align-items: center;
   padding: 2px 7px;
-  border-radius: 4px;
+  border-radius: var(--radius-sm);
   font-size: 0.65rem;
   font-weight: 700;
   text-transform: uppercase;
@@ -1446,7 +1446,7 @@ select.form-input:focus {
 .modal {
   background: var(--bg-card);
   border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+  border-radius: var(--radius-xl);
   width: 100%;
   max-width: 440px;
   max-height: 85vh;
@@ -1496,7 +1496,7 @@ select.form-input:focus {
 .modal-sheet {
   background: var(--bg-card);
   border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+  border-radius: var(--radius-xl);
   width: 100%;
   max-width: 440px;
   max-height: 85vh;
@@ -1809,6 +1809,7 @@ img, svg, .emoji, .empty-icon {
   max-width: 80vw;
   background: var(--bg-base);
   border-right: 1px solid var(--border-subtle);
+  border-radius: 0 var(--radius-xl) var(--radius-xl) 0;
   z-index: 1001;
   display: flex;
   flex-direction: column;
