@@ -306,17 +306,18 @@ function renderDashboard() {
     .filter(d => isSameMonth(d.date, viewYear, viewMonth))
     .reduce((sum, d) => sum + (Number(d.amount) || 0), 0);
 
-  // Unpaid bills this month
-  const monthUnpaidBills = appData.bills
-    .filter(b => isSameMonth(b.dueDate, viewYear, viewMonth) && !b.paid)
-    .reduce((sum, b) => sum + (Number(b.amount) || 0), 0);
+
 
   // Expenses this month
   const monthExpenses = appData.expenses
     .filter(e => isSameMonth(e.date, viewYear, viewMonth))
     .reduce((sum, e) => sum + (Number(e.amount) || 0), 0);
 
-  const remaining = monthIncome - monthUnpaidBills - monthExpenses;
+  const monthTotalBills = appData.bills
+    .filter(b => isSameMonth(b.dueDate, viewYear, viewMonth))
+    .reduce((sum, b) => sum + (Number(b.amount) || 0), 0);
+
+  const remaining = monthIncome - monthTotalBills - monthExpenses;
 
   // Summary cards — hero layout: Income full-width, then 3-column row
   const summaryHTML = `
@@ -330,7 +331,7 @@ function renderDashboard() {
         <div class="summary-row">
           <div class="summary-card bills">
             <div class="label">Bills Due</div>
-            <div class="value" data-tick-start="0" data-tick-end="${monthUnpaidBills}">${formatCurrency(monthUnpaidBills)}</div>
+            <div class="value" data-tick-start="0" data-tick-end="${monthTotalBills}">${formatCurrency(monthTotalBills)}</div>
           </div>
           <div class="summary-card expenses">
             <div class="label">Expenses</div>
