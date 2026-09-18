@@ -75,6 +75,15 @@
 
 /* ─── Sizing & Motion (shared) ─────────────────────────── */
 
+:root {
+  /* ─── Border Radius Tokens ─────────────────────────── */
+  --radius-sm: 9999px;
+  --radius-md: 9999px;
+  --radius-lg: 9999px;
+  --radius-xl: 9999px;
+  --radius-pill: 9999px;
+}
+
 /* ─── Reset & Base ──────────────────────────────────────── */
 *, *::before, *::after {
   box-sizing: border-box;
