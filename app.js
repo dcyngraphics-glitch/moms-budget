@@ -248,7 +248,7 @@ function renderDrawer() {
         <div class="account-name"></div>
         <div class="account-meta">${isActive ? 'Active' : 'Tap to switch'}</div>
       </div>
-      <button class="account-rename-btn" data-id="${acc.id}" title="Rename">✎</button>
+      <button class="account-rename-btn" data-id="${acc.id}" title="Rename" aria-label="Rename account">✎</button>
     `;
     div.querySelector('.account-name').textContent = acc.name;
     div.addEventListener('click', (e) => {
@@ -442,13 +442,13 @@ function openQuickActions() {
     <div class="modal-content">
       <h3>Quick Actions</h3>
       <div class="form-row">
-        <button class="btn btn-primary" id="qa-income" style="width:100%;margin-bottom:8px;">💰 Add Income</button>
+        <button class="btn btn-primary" id="qa-income" class="qa-btn">💰 Add Income</button>
       </div>
       <div class="form-row">
-        <button class="btn btn-secondary" id="qa-bill" style="width:100%;margin-bottom:8px;">📄 Add Bill</button>
+        <button class="btn btn-secondary" id="qa-bill" class="qa-btn">📄 Add Bill</button>
       </div>
       <div class="form-row">
-        <button class="btn btn-secondary" id="qa-expense" style="width:100%;margin-bottom:8px;">🛒 Add Expense</button>
+        <button class="btn btn-secondary" id="qa-expense" class="qa-btn">🛒 Add Expense</button>
       </div>
       <div class="modal-actions">
         <button type="button" class="btn btn-cancel" id="qa-cancel">Cancel</button>
@@ -486,41 +486,21 @@ function showMonthPicker(anchor, year, month) {
   if (existing) existing.remove();
 
   const popup = document.createElement('div');
-  popup.id = 'monthPickerPopup';
-  popup.style.cssText = `
-    position: absolute; top: 100%; left: 50%; transform: translateX(-50%);
-    background: var(--bg-elevated); border-radius: var(--radius-md); padding: 16px;
-    box-shadow: var(--shadow-modal); z-index: 500;
-    min-width: 220px; border: 1px solid var(--border-subtle);
-    color: var(--text-primary);
-  `;
-
+  popup.className = 'picker-popup';
   // Year buttons
   const yearHtml = `
-    <div style="display:flex;gap:4px;margin-bottom:8px;justify-content:center">
-      <button class="btn btn-sm btn-secondary" style="width:auto;font-size:0.8rem;padding:6px 10px;background:var(--bg-elevated);border:1px solid var(--border-subtle);" data-action="year-prev">◀</button>
-      <span style="flex:1;text-align:center;font-weight:600;font-size:0.95rem;color:var(--text-primary);" id="pickerYear">${year}</span>
-      <button class="btn btn-sm btn-secondary" style="width:auto;font-size:0.8rem;padding:6px 10px;background:var(--bg-elevated);border:1px solid var(--border-subtle);" data-action="year-next">▶</button>
+    <div class="picker-year-row">
+      <button class="btn btn-sm btn-secondary picker-year-btn" data-action="year-prev">◀</button>
+      <span class="picker-year-label" id="pickerYear">${year}</span>
+      <button class="btn btn-sm btn-secondary picker-year-btn" data-action="year-next">▶</button>
     </div>
   `;
-
   // Month list
   const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
   const monthHtml = months.map((m, i) =>
-    `<button class="month-option" data-month="${i+1}" style="display:block;width:100%;text-align:left;padding:8px 12px;border:none;background:transparent;cursor:pointer;font-size:0.9rem;border-bottom:1px solid var(--border-subtle);color:var(--text-primary);">${m}</button>`
+    `<button class="picker-month-option" data-month="${i+1}">${m}</button>`
   ).join('');
-
-  popup.innerHTML = yearHtml + `<div style="max-height:200px;overflow-y:auto">${monthHtml}</div>`;
-
-  anchor.parentNode.insertBefore(popup, anchor.nextSibling);
-
-  // Position below anchor
-  const rect = anchor.getBoundingClientRect();
-  popup.style.position = 'fixed';
-  popup.style.top = (rect.bottom + 4) + 'px';
-  popup.style.left = (rect.left) + 'px';
-  popup.style.transform = 'none';
-
+  popup.innerHTML = yearHtml + `<div class="picker-month-list">${monthHtml}</div>`;
   popup.querySelector('[data-action="year-prev"]').addEventListener('click', () => {
     const ySpan = popup.querySelector('#pickerYear');
     ySpan.textContent = parseInt(ySpan.textContent) - 1;
@@ -620,20 +600,20 @@ function renderDashboard() {
   const paydayHTML = `
     <section>
       <h2 class="section-title">Paydays</h2>
-      <div class="summary-grid" style="grid-template-columns: 1fr 1fr;">
+      <div class="summary-grid" class="paydays-grid">
         <div class="summary-card income">
           <div class="label">15th Drop</div>
-          <div class="value" style="font-size:1.1rem;">
+          <div class="value payday-value">
             ${drop15 ? formatCurrency(drop15.amount) : 'No drop yet'}
           </div>
-          ${drop15 ? `<div style="font-size:0.75rem;color:var(--text-muted);margin-top:2px;">${drop15.note || ''}</div>` : ''}
+          ${drop15 ? `<div class="payday-meta">${drop15.note || ''}</div>` : ''}
         </div>
         <div class="summary-card balance">
           <div class="label">30th Drop</div>
-          <div class="value" style="font-size:1.1rem;">
+          <div class="value payday-value">
             ${drop30 ? formatCurrency(drop30.amount) : 'No drop yet'}
           </div>
-          ${drop30 ? `<div style="font-size:0.75rem;color:var(--text-muted);margin-top:2px;">${drop30.note || ''}</div>` : ''}
+          ${drop30 ? `<div class="payday-meta">${drop30.note || ''}</div>` : ''}
         </div>
       </div>
     </section>
@@ -670,8 +650,8 @@ function renderDashboard() {
           </div>
           <div class="item-amount negative">${formatCurrency(b.amount)}</div>
           <div class="item-actions">
-            <button class="btn-pay" data-id="${b.id}" title="Mark as paid">✓ Pay</button>
-            <button class="delete" data-id="${b.id}" title="Delete">✕</button>
+            <button class="btn-pay" data-id="${b.id}" title="Mark as paid" aria-label="Mark as paid">✓ Pay</button>
+            <button class="delete" data-id="${b.id}" title="Delete" aria-label="Delete">✕</button>
           </div>
         </div>
       `;
@@ -707,8 +687,8 @@ function renderDashboard() {
           </div>
           <div class="item-amount negative">${formatCurrency(e.amount)}</div>
           <div class="item-actions">
-            <button class="edit" data-id="${e.id}" title="Edit">✎</button>
-            <button class="delete" data-id="${e.id}" title="Delete">✕</button>
+            <button class="edit" data-id="${e.id}" title="Edit" aria-label="Edit">✎</button>
+            <button class="delete" data-id="${e.id}" title="Delete" aria-label="Delete">✕</button>
           </div>
         </div>
       `;
@@ -818,14 +798,14 @@ function renderIncome() {
           <div class="item-info">
             <div class="item-name">
               <span class="name-text">${isPayday ? '💰 Payday Drop' : '💵 Cash Drop'}</span>
-              <span style="font-size:0.75rem;color:var(--text-muted);margin-left:6px;">${formatDate(d.date)}</span>
+              <span class="drop-date">${formatDate(d.date)}</span>
             </div>
             <div class="item-meta">${d.note || ''}</div>
           </div>
           <div class="item-amount positive">${formatCurrency(d.amount)}</div>
           <div class="item-actions">
-            <button class="edit" data-id="${d.id}" title="Edit">✎</button>
-            <button class="delete" data-id="${d.id}" title="Delete">✕</button>
+            <button class="edit" data-id="${d.id}" title="Edit" aria-label="Edit">✎</button>
+            <button class="delete" data-id="${d.id}" title="Delete" aria-label="Delete">✕</button>
           </div>
         </div>
       `;
@@ -880,7 +860,7 @@ function renderBills() {
       html += `
         <div class="item fade-in" data-bill-id="${b.id}">
           <div class="item-info">
-            <div class="item-name" style="${b.paid ? 'text-decoration:line-through;color:var(--text-muted);' : ''}">
+            <div class="item-name" class="${b.paid ? 'bill-paid' : ''}">
               <span class="name-text">${b.name}</span>
               <span class="bill-tag ${b.category || 'other'}">${b.category || 'other'}</span>
             </div>
@@ -890,14 +870,14 @@ function renderBills() {
               ${b.note ? '· ' + b.note : ''}
             </div>
           </div>
-          <div class="item-amount ${b.paid ? '' : 'negative'}" style="${b.paid ? 'text-decoration:line-through;color:var(--text-muted);' : ''}">
+          <div class="item-amount ${b.paid ? '' : 'negative'}" class="${b.paid ? 'bill-paid' : ''}">
             ${formatCurrency(b.amount)}
           </div>
           <div class="item-actions">
-            <button class="${b.paid ? 'btn-unpay' : 'btn-pay'}" data-id="${b.id}" title="${b.paid ? 'Mark unpaid' : 'Mark as paid'}">
+            <button class="${b.paid ? 'btn-unpay' : 'btn-pay'}" data-id="${b.id}" title="${b.paid ? 'Mark unpaid' : 'Mark as paid'}" aria-label="${b.paid ? 'Mark unpaid' : 'Mark as paid'}">
               ${b.paid ? '↩ Unpay' : '✓ Pay'}
             </button>
-            <button class="delete" data-id="${b.id}" title="Delete">✕</button>
+            <button class="delete" data-id="${b.id}" title="Delete" aria-label="Delete">✕</button>
           </div>
         </div>
       `;
@@ -957,8 +937,8 @@ function renderExpenses() {
           </div>
           <div class="item-amount negative">${formatCurrency(e.amount)}</div>
           <div class="item-actions">
-            <button class="edit" data-id="${e.id}" title="Edit">✎</button>
-            <button class="delete" data-id="${e.id}" title="Delete">✕</button>
+            <button class="edit" data-id="${e.id}" title="Edit" aria-label="Edit">✎</button>
+            <button class="delete" data-id="${e.id}" title="Delete" aria-label="Delete">✕</button>
           </div>
         </div>
       `;
@@ -991,14 +971,25 @@ function attachExpensesListeners() {
 // ---------- Modal System ----------
 
 let currentEscHandler = null;
+let modalTriggerElement = null;
 
 function openModal(html) {
   modalContent.innerHTML = html;
   modalOverlay.classList.remove('hidden');
+  // Store the trigger element for focus restoration
+  modalTriggerElement = document.activeElement;
   // Animate in
   modalContent.classList.remove('slide-up');
   void modalContent.offsetWidth; // force reflow
   modalContent.classList.add('slide-up');
+
+  // Move focus into the modal
+  const firstInput = modalContent.querySelector('input, select, button:not(.btn-cancel)');
+  if (firstInput) {
+    firstInput.focus();
+  } else {
+    modalContent.focus();
+  }
 
   // Attach cancel handler
   const cancelBtn = modalContent.querySelector('.btn-cancel');
@@ -1020,6 +1011,24 @@ function openModal(html) {
       closeModal();
       document.removeEventListener('keydown', currentEscHandler);
       currentEscHandler = null;
+    }
+    // Trap Tab within modal
+    if (e.key === 'Tab') {
+      const focusable = modalContent.querySelectorAll('input, select, button, textarea');
+      if (focusable.length === 0) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (e.shiftKey) {
+        if (document.activeElement === first) {
+          e.preventDefault();
+          last.focus();
+        }
+      } else {
+        if (document.activeElement === last) {
+          e.preventDefault();
+          first.focus();
+        }
+      }
     }
   };
   document.addEventListener('keydown', currentEscHandler);
@@ -1043,6 +1052,11 @@ function closeModal() {
   modalOverlay.classList.add('hidden');
   modalContent.innerHTML = '';
   modalContent.classList.remove('slide-up');
+  // Restore focus to trigger element
+  if (modalTriggerElement && typeof modalTriggerElement.focus === 'function') {
+    modalTriggerElement.focus();
+    modalTriggerElement = null;
+  }
 }
 
 // ---------- Income Modal ----------
@@ -1520,7 +1534,7 @@ function renderNotifications() {
     html += `<div class="list-empty">No upcoming bills. 🎉</div>`;
   } else {
     if (overdueBills.length > 0) {
-      html += `<h3 class="section-title" style="color:var(--danger);margin-top:12px;">⚠️ Overdue (${overdueBills.length})</h3>`;
+      html += `<h3 class="section-title notif-section-title overdue">⚠️ Overdue (${overdueBills.length})</h3>`;
       overdueBills.forEach(b => {
         html += `<div class="item fade-in" data-bill-id="${b.id}">
           <div class="item-info">
@@ -1529,14 +1543,14 @@ function renderNotifications() {
           </div>
           <div class="item-amount negative">${formatCurrency(b.amount)}</div>
           <div class="item-actions">
-            <button class="btn-pay" data-id="${b.id}" title="Mark as paid">✓ Pay</button>
+            <button class="btn-pay" data-id="${b.id}" title="Mark as paid" aria-label="Mark as paid">✓ Pay</button>
           </div>
         </div>`;
       });
     }
 
     if (dueToday.length > 0) {
-      html += `<h3 class="section-title" style="color:var(--warning,#f59e0b);margin-top:12px;">📅 Due Today (${dueToday.length})</h3>`;
+      html += `<h3 class="section-title notif-section-title today">📅 Due Today (${dueToday.length})</h3>`;
       dueToday.forEach(b => {
         html += `<div class="item fade-in" data-bill-id="${b.id}">
           <div class="item-info">
@@ -1545,14 +1559,14 @@ function renderNotifications() {
           </div>
           <div class="item-amount negative">${formatCurrency(b.amount)}</div>
           <div class="item-actions">
-            <button class="btn-pay" data-id="${b.id}" title="Mark as paid">✓ Pay</button>
+            <button class="btn-pay" data-id="${b.id}" title="Mark as paid" aria-label="Mark as paid">✓ Pay</button>
           </div>
         </div>`;
       });
     }
 
     if (dueTomorrow.length > 0) {
-      html += `<h3 class="section-title" style="color:var(--text-muted);margin-top:12px;">📆 Due Tomorrow (${dueTomorrow.length})</h3>`;
+      html += `<h3 class="section-title notif-section-title tomorrow">📆 Due Tomorrow (${dueTomorrow.length})</h3>`;
       dueTomorrow.forEach(b => {
         html += `<div class="item fade-in" data-bill-id="${b.id}">
           <div class="item-info">
@@ -1561,7 +1575,7 @@ function renderNotifications() {
           </div>
           <div class="item-amount negative">${formatCurrency(b.amount)}</div>
           <div class="item-actions">
-            <button class="btn-pay" data-id="${b.id}" title="Mark as paid">✓ Pay</button>
+            <button class="btn-pay" data-id="${b.id}" title="Mark as paid" aria-label="Mark as paid">✓ Pay</button>
           </div>
         </div>`;
       });
@@ -1641,7 +1655,7 @@ function renderStatistics() {
   let html = `<section><h2>Statistics</h2>`;
 
   // Summary cards
-  html += `<div class="summary-grid" style="margin-bottom:16px;">
+  html += `<div class="summary-grid" class="stats-summary-grid">
     <div class="summary-card income">
       <div class="label">Total Income</div>
       <div class="value">${formatCurrency(monthIncome)}</div>
@@ -1656,7 +1670,7 @@ function renderStatistics() {
     </div>
     <div class="summary-card ${remaining < 0 ? 'over' : 'balance'}">
       <div class="label">Remaining</div>
-      <div class="value" style="color: ${remaining < 0 ? 'var(--danger)' : ''}">${formatCurrency(remaining)}</div>
+      <div class="value" style="color:${remaining < 0 ? 'var(--danger)' : 'var(--teal)'}">${formatCurrency(remaining)}</div>
     </div>
   </div>`;
 
@@ -1668,16 +1682,16 @@ function renderStatistics() {
   if (Object.keys(expenseCategories).length === 0) {
     html += `<div class="list-empty">No expenses this month.</div>`;
   } else {
-    html += `<div class="card" style="padding:16px;">`;
+    html += `<div class="stats-card">`;
     Object.entries(expenseCategories).sort((a, b) => b[1] - a[1]).forEach(([cat, amount]) => {
       const pct = totalExpenses > 0 ? (amount / totalExpenses * 100).toFixed(1) : 0;
-      html += `<div style="margin-bottom:12px;">
-        <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
-          <span style="font-size:0.9rem;">${expenseCatLabels[cat] || cat}</span>
-          <span style="font-size:0.9rem;font-weight:600;">${formatCurrency(amount)} (${pct}%)</span>
+      html += `<div class="stats-chart-row">
+        <div class="stats-chart-row-label">
+          <span class="stats-chart-label">${expenseCatLabels[cat] || cat}</span>
+          <span class="stats-chart-row-value">${formatCurrency(amount)} (${pct}%)</span>
         </div>
-        <div style="background:var(--bg-elevated);border-radius:8px;height:8px;overflow:hidden;">
-          <div style="background:${expenseCatColors[cat] || '#6b7280'};height:100%;width:${pct}%;border-radius:8px;transition:width 0.5s ease;"></div>
+        <div class="stats-chart-track">
+          <div class="stats-chart-fill" style="background:${expenseCatColors[cat] || '#6b7280'};width:${pct}%;"></div>
         </div>
       </div>`;
     });
@@ -1685,23 +1699,23 @@ function renderStatistics() {
   }
 
   // Bill category breakdown
-  html += `<h3 class="section-title" style="margin-top:16px;">Bills by Category</h3>`;
+  html += `<h3 class="section-title spaced">Bills by Category</h3>`;
   const billCatLabels = { utilities: 'Utilities', rent: 'Rent', food: 'Food', transport: 'Transport', health: 'Health', other: 'Other' };
   const billCatColors = { utilities: '#f59e0b', rent: '#8b5cf6', food: '#10b981', transport: '#3b82f6', health: '#ef4444', other: '#6b7280' };
 
   if (Object.keys(billCategories).length === 0) {
     html += `<div class="list-empty">No bills this month.</div>`;
   } else {
-    html += `<div class="card" style="padding:16px;">`;
+    html += `<div class="stats-card">`;
     Object.entries(billCategories).sort((a, b) => b[1] - a[1]).forEach(([cat, amount]) => {
       const pct = totalBills > 0 ? (amount / totalBills * 100).toFixed(1) : 0;
-      html += `<div style="margin-bottom:12px;">
-        <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
-          <span style="font-size:0.9rem;">${billCatLabels[cat] || cat}</span>
-          <span style="font-size:0.9rem;font-weight:600;">${formatCurrency(amount)} (${pct}%)</span>
+      html += `<div class="stats-chart-row">
+        <div class="stats-chart-row-label">
+          <span class="stats-chart-label">${billCatLabels[cat] || cat}</span>
+          <span class="stats-chart-row-value">${formatCurrency(amount)} (${pct}%)</span>
         </div>
-        <div style="background:var(--bg-elevated);border-radius:8px;height:8px;overflow:hidden;">
-          <div style="background:${billCatColors[cat] || '#6b7280'};height:100%;width:${pct}%;border-radius:8px;transition:width 0.5s ease;"></div>
+        <div class="stats-chart-track">
+          <div class="stats-chart-fill" style="background:${billCatColors[cat] || '#6b7280'};width:${pct}%;"></div>
         </div>
       </div>`;
     });
@@ -1709,8 +1723,8 @@ function renderStatistics() {
   }
 
   // Monthly trend (last 6 months)
-  html += `<h3 class="section-title" style="margin-top:16px;">6-Month Trend</h3>`;
-  html += `<div class="card" style="padding:16px;">`;
+  html += `<h3 class="section-title spaced">6-Month Trend</h3>`;
+  html += `<div class="stats-card">`;
   for (let i = 5; i >= 0; i--) {
     const d = new Date(currentYear, currentMonth - 1 - i, 1);
     const y = d.getFullYear();
@@ -1727,16 +1741,15 @@ function renderStatistics() {
       .filter(e => isSameMonth(e.date, y, m))
       .reduce((sum, e) => sum + (Number(e.amount) || 0), 0);
 
-    html += `<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border-subtle);">
-      <span style="font-weight:600;min-width:60px;">${monthName} ${y}</span>
-      <div style="flex:1;display:flex;gap:8px;justify-content:flex-end;font-size:0.85rem;">
-        <span style="color:var(--color-correct,#10b981);">+${formatCurrency(income)}</span>
-        <span style="color:var(--danger);">-${formatCurrency(bills)}</span>
-        <span style="color:var(--warning,#f59e0b);">-${formatCurrency(expenses)}</span>
+    html += `<div class="stats-trend-row">
+      <span class="stats-trend-month">${monthName} ${y}</span>
+      <div class="stats-trend-values">
+        <span class="stats-trend-income">+${formatCurrency(income)}</span>
+        <span class="stats-trend-bills">-${formatCurrency(bills)}</span>
+        <span class="stats-trend-expenses">-${formatCurrency(expenses)}</span>
       </div>
     </div>`;
   }
-  html += `</div>`;
 
   html += `</section>`;
   items.push(html);
