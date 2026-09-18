@@ -92,15 +92,112 @@ function clearFieldErrors(form) {
   form.querySelectorAll('input, select').forEach(el => el.style.borderColor = '');
 }
 
-// ---------- Storage ----------
+// ---------- Account System ----------
+const ACCOUNT_STORAGE_KEY = 'moms-budget-accounts';
+const ACTIVE_ACCOUNT_KEY = 'moms-budget-active';
+const DATA_STORAGE_PREFIX = 'moms-budget-data-';
+
+const ACCOUNT_ICONS = ['💰', '💵', '🏦', '💳', '📱', '🏠', '🎯', '💎', '🐷', '📊', '🛒', '🔔'];
+
+let accounts = null;
+let activeAccountId = null;
+
+function loadAccounts() {
+  try {
+    const raw = localStorage.getItem(ACCOUNT_STORAGE_KEY);
+    if (!raw) return null;
+    const accs = JSON.parse(raw);
+    if (!Array.isArray(accs) || accs.length === 0) return null;
+    return accs;
+  } catch (e) {
+    return null;
+  }
+}
+
+function saveAccounts(accs) {
+  try {
+    localStorage.setItem(ACCOUNT_STORAGE_KEY, JSON.stringify(accs));
+    accounts = accs;
+    return true;
+  } catch (e) {
+    console.error('Failed to save accounts:', e);
+    return false;
+  }
+}
+
+function getAccountDataKey(accountId) {
+  return DATA_STORAGE_PREFIX + accountId;
+}
+
+function migrateOldAccounts() {
+  // Old format had a single data object under STORAGE_KEY
+  const raw = localStorage.getItem(STORAGE_KEY);
+  if (!raw) return false;
+  try {
+    const data = JSON.parse(raw);
+    if (!data || typeof data !== 'object') return false;
+    const defaultId = 'acc-' + generateId().slice(0, 8);
+    const defaultAccount = {
+      id: defaultId,
+      name: 'BAEAYRAN NA NAMAN',
+      icon: '💰',
+      createdAt: Date.now()
+    };
+    // Save data under new key
+    localStorage.setItem(getAccountDataKey(defaultId), JSON.stringify({
+      cashDrops: Array.isArray(data.cashDrops) ? data.cashDrops : [],
+      bills: Array.isArray(data.bills) ? data.bills : [],
+      expenses: Array.isArray(data.expenses) ? data.expenses : []
+    }));
+    // Save accounts list
+    saveAccounts([defaultAccount]);
+    activeAccountId = defaultId;
+    localStorage.setItem(ACTIVE_ACCOUNT_KEY, activeAccountId);
+    // Clean up old key
+    localStorage.removeItem(STORAGE_KEY);
+    return true;
+  } catch (e) {
+    return false;
+  }
+}
+
+// Initialize accounts if none exist
+function ensureAccounts() {
+  if (!accounts || accounts.length === 0) {
+    const migrated = migrateOldAccounts();
+    if (!migrated) {
+      // Fresh start — create default account
+      const defaultId = 'acc-' + generateId().slice(0, 8);
+      const defaultAccount = {
+        id: defaultId,
+        name: 'BAEAYRAN NA NAMAN',
+        icon: '💰',
+        createdAt: Date.now()
+      };
+      saveAccounts([defaultAccount]);
+      activeAccountId = defaultId;
+      localStorage.setItem(ACTIVE_ACCOUNT_KEY, activeAccountId);
+      // Initialize empty data for this account
+      localStorage.setItem(getAccountDataKey(defaultId), JSON.stringify({
+        cashDrops: [],
+        bills: [],
+        expenses: []
+      }));
+    }
+  }
+}
+
+// ---------- Storage (account-aware) ----------
 
 function loadData() {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!accounts || accounts.length === 0) {
+      ensureAccounts();
+    }
+    const raw = localStorage.getItem(getAccountDataKey(activeAccountId));
     if (!raw) return null;
     const data = JSON.parse(raw);
     if (!data || typeof data !== 'object') return null;
-    // Ensure arrays exist
     data.cashDrops = Array.isArray(data.cashDrops) ? data.cashDrops : [];
     data.bills = Array.isArray(data.bills) ? data.bills : [];
     data.expenses = Array.isArray(data.expenses) ? data.expenses : [];
@@ -113,13 +210,169 @@ function loadData() {
 
 function saveData(data) {
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    localStorage.setItem(getAccountDataKey(activeAccountId), JSON.stringify(data));
     return true;
   } catch (e) {
     console.error('Failed to save budget data:', e);
     alert('Could not save data. Storage may be full.');
     return false;
   }
+}
+
+// ---------- Account UI ----------
+
+function getActiveAccount() {
+  return accounts.find(a => a.id === activeAccountId) || accounts[0];
+}
+
+function updateHeaderTitle() {
+  const acc = getActiveAccount();
+  const titleEl = document.getElementById('headerTitle');
+  if (titleEl) {
+    titleEl.textContent = acc ? acc.name : 'Budget';
+  }
+}
+
+function renderDrawer() {
+  const list = document.getElementById('accountList');
+  if (!list) return;
+  list.innerHTML = '';
+  accounts.forEach(acc => {
+    const isActive = acc.id === activeAccountId;
+    const div = document.createElement('div');
+    div.className = 'drawer-account' + (isActive ? ' active' : '');
+    div.dataset.id = acc.id;
+    div.innerHTML = `
+      <div class="account-icon">${acc.icon || '💰'}</div>
+      <div class="account-info">
+        <div class="account-name"></div>
+        <div class="account-meta">${isActive ? 'Active' : 'Tap to switch'}</div>
+      </div>
+      <button class="account-rename-btn" data-id="${acc.id}" title="Rename">✎</button>
+    `;
+    div.querySelector('.account-name').textContent = acc.name;
+    div.addEventListener('click', (e) => {
+      if (e.target.classList.contains('account-rename-btn')) {
+        e.stopPropagation();
+        openRenameAccountModal(acc.id);
+      } else {
+        switchAccount(acc.id);
+      }
+    });
+    list.appendChild(div);
+  });
+}
+
+function openDrawer() {
+  const drawer = document.getElementById('drawer');
+  const overlay = document.getElementById('drawerOverlay');
+  if (drawer) drawer.classList.remove('hidden');
+  if (overlay) overlay.classList.remove('hidden');
+  renderDrawer();
+}
+
+function closeDrawer() {
+  const drawer = document.getElementById('drawer');
+  const overlay = document.getElementById('drawerOverlay');
+  if (drawer) drawer.classList.add('hidden');
+  if (overlay) overlay.classList.add('hidden');
+}
+
+function switchAccount(accountId) {
+  if (accountId === activeAccountId) {
+    closeDrawer();
+    return;
+  }
+  activeAccountId = accountId;
+  localStorage.setItem(ACTIVE_ACCOUNT_KEY, activeAccountId);
+  // Reload appData for new account
+  appData = loadData() || { cashDrops: [], bills: [], expenses: [] };
+  updateHeaderTitle();
+  closeDrawer();
+  render();
+}
+
+function openRenameAccountModal(accountId) {
+  const acc = accounts.find(a => a.id === accountId);
+  if (!acc) return;
+  const html = `
+    <div class=\"modal-content\">
+      <h3>Rename Account</h3>
+      <form id=\"renameAccountForm\">
+        <div class=\"form-row\">
+          <label for=\"renameName\">Account Name</label>
+          <input type=\"text\" id=\"renameName\" name=\"name\" value=\"${acc.name}\" required maxlength=\"30\">
+        </div>
+        <div class=\"modal-actions\">
+          <button type=\"button\" class=\"btn btn-cancel\" id=\"cancelRename\">Cancel</button>
+          <button type=\"submit\" class=\"btn btn-primary\">Save</button>
+        </div>
+      </form>
+    </div>
+  `;
+
+  openModal(html);
+
+  // Close drawer first so modal isn't blocked
+  closeDrawer();
+
+  document.getElementById('cancelRename').addEventListener('click', closeModal);
+
+  document.getElementById('renameAccountForm').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const newName = document.getElementById('renameName').value.trim();
+    if (!newName) return;
+    acc.name = newName;
+    saveAccounts(accounts);
+    updateHeaderTitle();
+    renderDrawer();
+    closeModal();
+  });
+}
+
+function openAddAccountModal() {
+  closeDrawer();
+  const html = `
+    <div class="modal-content">
+      <h3>New Account</h3>
+      <form id="accountForm">
+        <div class="form-row">
+          <label for="accName">Account Name</label>
+          <input type="text" id="accName" name="name" placeholder="e.g. Mom's Savings" required maxlength="30">
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn btn-cancel" id="cancelAccount">Cancel</button>
+          <button type="submit" class="btn btn-primary">Create Account</button>
+        </div>
+      </form>
+    </div>
+  `;
+
+  openModal(html);
+
+  document.getElementById('cancelAccount').addEventListener('click', closeModal);
+
+  document.getElementById('accountForm').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const name = document.getElementById('accName').value.trim();
+    if (!name) return;
+    const id = 'acc-' + generateId().slice(0, 8);
+    const newAccount = {
+      id,
+      name,
+      icon: '💰',
+      createdAt: Date.now()
+    };
+    accounts.push(newAccount);
+    saveAccounts(accounts);
+    localStorage.setItem(getAccountDataKey(id), JSON.stringify({
+      cashDrops: [],
+      bills: [],
+      expenses: []
+    }));
+    closeModal();
+    switchAccount(id);
+  });
 }
 
 // ---------- App State ----------
@@ -131,9 +384,16 @@ let viewMonth = new Date().getMonth() + 1; // 1-indexed
 
 // ---------- DOM refs ----------
 
-const mainContent = document.getElementById('main-content');
-const modalOverlay = document.getElementById('modalOverlay');
-const modalContent = document.getElementById('modalContent');
+// Use functions to get DOM elements (in case DOM isn't ready when script loads)
+function getMainContent() {
+  return document.getElementById('main-content');
+}
+function getModalOverlay() {
+  return document.getElementById('modalOverlay');
+}
+function getModalContent() {
+  return document.getElementById('modalContent');
+}
 
 // ---------- Navigation ----------
 
@@ -169,6 +429,12 @@ function initNavigation() {
       openQuickActions();
     }
   });
+
+  // Drawer / sidebar
+  document.getElementById('menuBtn').addEventListener('click', openDrawer);
+  document.getElementById('drawerClose').addEventListener('click', closeDrawer);
+  document.getElementById('drawerOverlay').addEventListener('click', closeDrawer);
+  document.getElementById('addAccountBtn').addEventListener('click', openAddAccountModal);
 }
 
 function openQuickActions() {
@@ -451,7 +717,7 @@ function renderDashboard() {
   expensesHTML += `</section>`;
   items.push(expensesHTML);
 
-  mainContent.innerHTML = items.join('\n');
+  getMainContent().innerHTML = items.join('\n');
 
   // Attach event listeners
   attachDashboardListeners();
@@ -568,7 +834,7 @@ function renderIncome() {
   html += `</section>`;
 
   items.push(html);
-  mainContent.innerHTML = items.join('\n');
+  getMainContent().innerHTML = items.join('\n');
 
   attachIncomeListeners();
 }
@@ -640,7 +906,7 @@ function renderBills() {
   html += `</section>`;
 
   items.push(html);
-  mainContent.innerHTML = items.join('\n');
+  getMainContent().innerHTML = items.join('\n');
 
   attachBillsListeners();
 }
@@ -701,7 +967,7 @@ function renderExpenses() {
   html += `</section>`;
 
   items.push(html);
-  mainContent.innerHTML = items.join('\n');
+  getMainContent().innerHTML = items.join('\n');
 
   attachExpensesListeners();
 }
@@ -1304,7 +1570,7 @@ function renderNotifications() {
 
   html += `</section>`;
   items.push(html);
-  mainContent.innerHTML = items.join('\n');
+  getMainContent().innerHTML = items.join('\n');
 
   // Attach month selector listeners
   document.querySelectorAll('.month-selector .nav-btn').forEach(btn => {
@@ -1474,7 +1740,7 @@ function renderStatistics() {
 
   html += `</section>`;
   items.push(html);
-  mainContent.innerHTML = items.join('\n');
+  getMainContent().innerHTML = items.join('\n');
 
   // Attach month selector listeners
   document.querySelectorAll('.month-selector .nav-btn').forEach(btn => {
@@ -1498,6 +1764,7 @@ function renderStatistics() {
 // ---------- Main Render ----------
 
 function render() {
+  console.log('render() called, currentScreen:', currentScreen);
   switch (currentScreen) {
     case 'dashboard': renderDashboard(); break;
     case 'income': renderIncome(); break;
@@ -1507,13 +1774,31 @@ function render() {
     case 'statistics': renderStatistics(); break;
     default: renderDashboard();
   }
+  console.log('render() completed switch');
 }
 
 // ---------- Init ----------
 
 function init() {
+  console.log('init() called');
+  // Load accounts from localStorage
+  accounts = loadAccounts();
+  console.log('accounts loaded:', accounts);
+  activeAccountId = localStorage.getItem(ACTIVE_ACCOUNT_KEY) || (accounts?.[0]?.id ?? null);
+  
+  ensureAccounts();
+  // Re-read accounts after ensureAccounts may have created one
+  accounts = loadAccounts();
+  console.log('accounts after ensure:', accounts);
+  activeAccountId = localStorage.getItem(ACTIVE_ACCOUNT_KEY) || (accounts?.[0]?.id ?? null);
+  
+  appData = loadData() || { cashDrops: [], bills: [], expenses: [] };
+  console.log('appData loaded:', appData);
   initNavigation();
+  updateHeaderTitle();
+  console.log('Calling render()...');
   render();
+  console.log('render() completed');
 
   // If viewYear/viewMonth is in the future (near end of month), keep current
   // Already initialized to current month above
@@ -1521,7 +1806,19 @@ function init() {
 
 // Start the app when DOM is ready
 if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', init);
+  document.addEventListener('DOMContentLoaded', () => {
+    console.log('DOMContentLoaded fired');
+    try {
+      init();
+    } catch (e) {
+      console.error('init() failed:', e);
+    }
+  });
 } else {
-  init();
+  console.log('DOM already ready, calling init()');
+  try {
+    init();
+  } catch (e) {
+    console.error('init() failed:', e);
+  }
 }

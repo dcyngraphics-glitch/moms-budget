@@ -52,3 +52,13 @@
     animation: none !important;
   }
 }
+
+/* Drawer slides in from left */
+@keyframes drawer-slide {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}

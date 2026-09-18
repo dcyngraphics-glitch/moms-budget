@@ -14,9 +14,24 @@
 </head>
 <body>
   <div id="app">
+    <!-- Side drawer -->
+    <div class="drawer-overlay hidden" id="drawerOverlay"></div>
+    <aside class="drawer hidden" id="drawer">
+      <div class="drawer-header">
+        <h2>Accounts</h2>
+        <button class="drawer-close" id="drawerClose" aria-label="Close">✕</button>
+      </div>
+      <div class="drawer-list" id="accountList"></div>
+      <button class="drawer-add" id="addAccountBtn">+ Add Account</button>
+    </aside>
+
     <!-- Top header -->
     <header class="top-header">
-      <h1>BAEAYRAN NA NAMAN</h1>
+      <button class="menu-btn" id="menuBtn" aria-label="Open menu">☰</button>
+      <div class="header-title-wrap">
+        <h1 id="headerTitle">BAEAYRAN NA NAMAN</h1>
+      </div>
+      <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme" title="Dark / Light">🌓</button>
     </header>
 
     <!-- Main content area -->
@@ -62,6 +77,32 @@
   </div>
 
   <script src="app.js"></script>
+  <script>
+    // Theme toggle — persisted in localStorage
+    (function() {
+      const THEME_KEY = 'moms-budget-theme';
+      const html = document.documentElement;
+      
+      // Apply saved theme or default to dark
+      const saved = localStorage.getItem(THEME_KEY);
+      if (saved === 'light' || saved === 'dark') {
+        html.setAttribute('data-theme', saved);
+      } else {
+        html.setAttribute('data-theme', 'dark');
+      }
+      
+      // Toggle handler
+      const toggle = document.getElementById('themeToggle');
+      if (toggle) {
+        toggle.addEventListener('click', () => {
+          const current = html.getAttribute('data-theme');
+          const next = current === 'dark' ? 'light' : 'dark';
+          html.setAttribute('data-theme', next);
+          localStorage.setItem(THEME_KEY, next);
+        });
+      }
+    })();
+  </script>
   <script>
     // Register service worker for offline
     if ('serviceWorker' in navigator) {
