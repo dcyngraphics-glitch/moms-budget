@@ -185,6 +185,14 @@ function ensureAccounts() {
       }));
     }
   }
+  // Validate activeAccountId exists in accounts list
+  if (accounts && accounts.length > 0) {
+    const activeExists = accounts.some(a => a.id === activeAccountId);
+    if (!activeExists) {
+      activeAccountId = accounts[0].id;
+      localStorage.setItem(ACTIVE_ACCOUNT_KEY, activeAccountId);
+    }
+  }
 }
 
 // ---------- Storage (account-aware) ----------
@@ -195,7 +203,24 @@ function loadData() {
       ensureAccounts();
     }
     const raw = localStorage.getItem(getAccountDataKey(activeAccountId));
-    if (!raw) return null;
+    if (!raw) {
+      // Try to find any existing data for this account
+      const allKeys = Object.keys(localStorage).filter(k => k.startsWith(DATA_STORAGE_PREFIX));
+      if (allKeys.length > 0) {
+        // Use the first available data key
+        const fallbackRaw = localStorage.getItem(allKeys[0]);
+        if (fallbackRaw) {
+          const data = JSON.parse(fallbackRaw);
+          if (data && typeof data === 'object') {
+            data.cashDrops = Array.isArray(data.cashDrops) ? data.cashDrops : [];
+            data.bills = Array.isArray(data.bills) ? data.bills : [];
+            data.expenses = Array.isArray(data.expenses) ? data.expenses : [];
+            return data;
+          }
+        }
+      }
+      return null;
+    }
     const data = JSON.parse(raw);
     if (!data || typeof data !== 'object') return null;
     data.cashDrops = Array.isArray(data.cashDrops) ? data.cashDrops : [];
