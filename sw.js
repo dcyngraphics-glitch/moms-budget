@@ -1,4 +1,4 @@
-const CACHE_NAME = 'moms-budget-v4';
+const CACHE_NAME = 'moms-budget-v5';
 const ASSETS = [
   './',
   './index.html',
@@ -24,10 +24,25 @@ self.addEventListener('activate', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
+  // For navigation requests (pull-to-refresh), always try network first
+  if (event.request.mode === 'navigate') {
+    event.respondWith(
+      fetch(event.request).then((response) => {
+        if (response && response.status === 200) {
+          const clone = response.clone();
+          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
+          return response;
+        }
+        // Fallback to cache
+        return caches.match('./index.html').then((cached) => cached || response);
+      }).catch(() => caches.match('./index.html'))
+    );
+    return;
+  }
+  // For static assets: cache first, update in background
   event.respondWith(
     caches.match(event.request).then((cached) => {
       if (cached) {
-        // Return cached, but also update cache in background
         event.waitUntil(
           fetch(event.request).then((response) => {
             if (response && response.status === 200) {
@@ -43,12 +58,6 @@ self.addEventListener('fetch', (event) => {
         const clone = response.clone();
         caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
         return response;
-      }).catch(() => {
-        // Fallback for offline HTML navigation
-        if (event.request.mode === 'navigate') {
-          return caches.match('./index.html');
-        }
-        return new Response('Offline', { status: 503 });
       });
     })
   );
