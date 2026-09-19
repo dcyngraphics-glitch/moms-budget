@@ -24,10 +24,10 @@ self.addEventListener('activate', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
-  // For navigation requests (pull-to-refresh), always try network first
+  // For navigation requests (pull-to-refresh), always bypass all caches
   if (event.request.mode === 'navigate') {
     event.respondWith(
-      fetch(event.request).then((response) => {
+      fetch(event.request, { cache: 'no-store' }).then((response) => {
         if (response && response.status === 200) {
           const clone = response.clone();
           caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
