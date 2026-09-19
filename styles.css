@@ -1293,7 +1293,7 @@ select.form-input:focus {
 
 /* ─── BOTTOM NAV (index.html structure) ─────────────────── */
 .bottom-nav {
-  position: absolute;
+  position: fixed;
   bottom: 0;
   left: 0;
   right: 0;
